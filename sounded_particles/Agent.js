@@ -2,7 +2,7 @@
 function Agent() {
 
     let stepSize, angle
-    let noisy, noisySpeed = 0.4
+    let  noisySpeed = 0.4
     let cAgent 
     let dir = random(1) > 0.5 ? 1 : -1 
 
@@ -26,14 +26,14 @@ function Agent() {
           if (dist(this.pos.x,this.pos.y, mouseX, mouseY) < 500) {
             let mouse = createVector(mouseX, mouseY)
             let gravity = p5.Vector.sub(mouse, this.pos); //make vector pointing towards centralPoint
-            let distance = p5.Vector.mag(gravity); //distance between particle and centralPoint
-            let gravitation = (9.81 * this.mass) / (distance * distance * 1.2); // formule de gravite pour la force gravitionnelle
+            //let distance = p5.Vector.mag(gravity); //distance between particle and centralPoint
+           // let gravitation = (9.81 * this.mass) / (distance * distance * 1.2); // formule de gravite pour la force gravitionnelle
             gravity.normalize();
             gravity.mult(9.81);
             this.pos.add(p5.Vector.div(gravity))
 
-            let note = notes[int(random(notes.length))]
-            synthe.triggerAttackRelease(note, '16n')
+           // let note = notes[int(random(notes.length))]
+           // synthe.triggerAttackRelease(note, '16n')
           }
 
       }
@@ -46,7 +46,7 @@ function Agent() {
         this.pos.y = random(height);
         this.oldPos.set(this.pos);
       }
-      noisy += noisySpeed;
+     // noisy += noisySpeed;
     }
 
     this.display = function(){

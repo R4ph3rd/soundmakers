@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css?family=Raleway:300,500,500i,600,700,,800,900');
+
+body{
+    margin: 5vh 5vw;
+    scrollbar-width: none; /*for Firefox (en principe, selon mdn*/
+    background-color:0;
+}
+
+html::-webkit-scrollbar { display: none; }
+
+img{max-width:100% ; max-height: 100%}
+
+a{
+    text-decoration:none;
+    text-transform:uppercase;
+    font-family:'Raleway';
+    font-weight: 900;
+    font-size : 2em;
+    line-height:1.5em;
+    color:rgb(136, 136, 136)
+}
+
+a:hover{
+    line-height:2em;
+    color:rgb(40,40,40)
+}
+
+.medias{
+    height:50px;
+    text-align:center;
+}
+
+.medias img{
+    margin:25px;
+}
+
+footer p {
+    margin-top:100px;
+    display: block;
+    text-align:center;
+    font-family:'Raleway';
+    font-size: 1em;
+    font-weight:500;
+    line-height: 1em;
+    color:rgb(40,40,40)
+}
+

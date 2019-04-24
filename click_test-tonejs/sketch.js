@@ -1,6 +1,5 @@
 /* inspired by a Matt Deslaurier's sketch, https://gist.github.com/mattdesl/50fa00622294a86261edf3c7fbee2d3e */
-
-let notes = [ 'C5', 'A3', 'D4', 'G4', 'A4', 'F4' ]
+let notes = [ 'E3', 'A3', 'D3', 'G3', 'B3', 'A4' ]
 let blue, violet, pink, yellow, orange
 var bubbles = []
 let bouncy = false

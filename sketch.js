@@ -1,5 +1,5 @@
-let maxag = 8000
-let notes = [ 'E3','E4', 'A3' ]
+let maxag = 8000  
+let threshold
 let blue, violet, pink, yellow, orange
 
 let agent = [];
@@ -7,41 +7,25 @@ let noiseStep, noiseForce ;
 let strokeWidth = 0.3;
 let c = []
 
-let timer, timeTo
-let sound
-//create a synth and connect it to the master output (your speakers)
-var synthe = new Tone.Synth(
-  ({
-  oscillator: { type: 'sine' },
-  envelope: {
-    attack: 0.0001,
-    decay: 1,
-    sustain: 0.6,
-    release: 60,
-    detune:8
-  },    
-  reverb:{
-    decay: 40,
-    wet: 0.5,
-    preDelay: 0.2
-  }
-})).toMaster()
-
-let mouse
+let sound, mouse
 
 let carrier; // this is the oscillator we will hear
 let modulator; // this oscillator will modulate the frequency of the carrier
 
-let analyzer; // we'll use this visualize the waveform
-
 // the carrier frequency pre-modulation
-let carrierBaseFreq = 220;
+let carrierBaseFreq = 40;
 
 // min/max ranges for modulator
-let modMaxFreq = 60
-let modMinFreq = 65
-let modMaxDepth = -230;
-let modMinDepth = -250;
+let modMaxFreq = 37
+let modMinFreq = 40
+let modMaxDepth = -200;
+let modMinDepth = -230;
+let modFreq, modDepth
+
+//a polysynth composed of 60 Voices of Synth
+var synth = new Tone.PolySynth(10, Tone.Synth).toMaster();
+//set the attributes using the set interface
+synth.set("detune", -800);
 
 
 function setup() {
@@ -51,13 +35,17 @@ function setup() {
   background(0)
   rectMode(CENTER)
 
+  // adapt number of agents and threshold of attraction according to screen size
+  let diag = sqrt(pow(windowWidth,2) + pow(windowHeight,2))
+  threshold =  ( 350 / 1600 ) * diag
+  maxag = ( 8000 / 1600 ) * diag
+  console.log("seuil : " + threshold)
+  console.log("agents : 0" + maxag)
+
   noiseStep = random(150, 600);
   noiseForce = random(20);
 
   sound = false
-
-  timer = millis()
-  timeTo = millis()
 
   c[0] = color('#3b83d6'); //blue
   c[1] = color('#ff206e') //violet 
@@ -75,18 +63,12 @@ function setup() {
   carrier.start(); // start oscillating
 
   // try changing the type to 'square', 'sine' or 'triangle'
-  modulator = new p5.Oscillator('sawtooth');
+  modulator = new p5.Oscillator('sine');
   modulator.start();
 
   // add the modulator's output to modulate the carrier's frequency
   modulator.disconnect();
   carrier.freq(modulator);
-
-  // create an FFT to analyze the audio
-  analyzer = new p5.FFT();
-
-  // fade carrier in/out on mouseover / touch start
- // toggleAudio(cnv);
 }
 
 function windowResized(){
@@ -94,7 +76,7 @@ function windowResized(){
 }
 
 function draw() {
-  background(0,10) 
+  background(0,20) 
 
   for (let i = 0; i < maxag; i ++) {
     agent[i].update();
@@ -104,28 +86,30 @@ function draw() {
 
 function mousePressed(){
 sound = true
-  if( sound){
+  if(sound){
   mouse.set(mouseX, mouseY)
 
+    //play a chord
+    synth.triggerAttackRelease(["E3", "A6"], "4n");
+
   // map mouseY to modulator freq between a maximum and minimum frequency
-  let modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
+  modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
   modulator.freq(modFreq);
 
   // change the amplitude of the modulator
   // negative amp reverses the sawtooth waveform, and sounds percussive
-  let modDepth = map(mouseX, 0, width, modMinDepth, modMaxDepth);
+  modDepth = map(mouseX, 0, width, modMinDepth, modMaxDepth);
   modulator.amp(modDepth);
 
   carrier.amp(1.0, 0.01);
-
-}
+  }
 }
 
 function mouseDragged(){ 
   mouse.set(mouseX, mouseY)
-  let modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
+  modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);
   modulator.freq(modFreq);
-    let modDepth = map(mouseX, 0, width, modMinDepth, modMaxDepth);
+  modDepth = map(mouseX, 0, width, modMinDepth, modMaxDepth);
   modulator.amp(modDepth);
 }
 
@@ -135,24 +119,9 @@ function mouseReleased(){
   }
 
 function keyPressed(){
-  if (key == 's' || key == 'S' ) saveFrame("noisy_fluctuations-###.png");
-
   if (keyCode == ENTER ) {
     noiseStep = random(150, 600);
     noiseForce = random(20);
     for (let i = 0; i < maxag; i ++) agent[i] = new Agent();
   }
 }
-/*
-// helper function to toggle sound
-function toggleAudio(cnv) {
-  cnv.mouseOver(function() {
-    
-  });
-  cnv.touchStarted(function() {
-    carrier.amp(1.0, 0.01);
-  });
-  cnv.mouseOut(function() {
-    carrier.amp(0.0, 1.0);
-  });
-}*/

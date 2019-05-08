@@ -38,7 +38,7 @@ function setup() {
   // adapt number of agents and threshold of attraction according to screen size
   let diag = sqrt(pow(windowWidth,2) + pow(windowHeight,2))
   threshold =  ( 350 / 1600 ) * diag
-  maxag = ( 8000 / 1600 ) * diag
+  maxag = ( 2500 / 1600 ) * diag
   console.log("seuil : " + threshold)
   console.log("agents : 0" + maxag)
 
@@ -69,18 +69,35 @@ function setup() {
   // add the modulator's output to modulate the carrier's frequency
   modulator.disconnect();
   carrier.freq(modulator);
+
+  synth.volume.value = - 12
+  masterVolume(0.8)
 }
 
 function windowResized(){
   resizeCanvas(windowWidth, windowHeight)
 }
 
+let mod = 10
+
 function draw() {
   background(0,20) 
+
+          //play a chord
+   if (frameCount % mod == 0) {
+     if(random(1) < 0.25) synth.triggerAttackRelease(["E5", "A3"], "10n")
+   //  else if ( random(1) > 0.8)synth.triggerAttackRelease(["E4", "B5"], "10n")
+     //else if ( random(1) > 0.3 && random(1) < 0.4) synth.triggerAttackRelease(["B4", "A5"], "10n")
+     else if (random(1) < 0.5) synth.triggerAttackRelease(["C4", "A5"], "10n")
+     else if (random(1) > 0.94 && random(1) < 0.9999999) synth.triggerAttackRelease(["B4", "A5"], "10n")
+     else if (random(1) < 0.1) synth.triggerAttackRelease(["B3", "A3"], "10n")  
+     mod = int(random(1,10))
+   }
 
   for (let i = 0; i < maxag; i ++) {
     agent[i].update();
     agent[i].display();
+
   }
 }
 
@@ -89,8 +106,7 @@ sound = true
   if(sound){
   mouse.set(mouseX, mouseY)
 
-    //play a chord
-    synth.triggerAttackRelease(["E3", "A6"], "4n");
+
 
   // map mouseY to modulator freq between a maximum and minimum frequency
   modFreq = map(mouseY, height, 0, modMinFreq, modMaxFreq);

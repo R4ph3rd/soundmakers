@@ -26,16 +26,32 @@ a:hover{
 }
 
 .medias{
-    height:50px;
+    display: flex;
+    justify-content: center;
+    height: max-content;
     text-align:center;
+}
+
+.medias a {
+    width: max-content;
+    height: max-content;
+    display: block;
 }
 
 .medias img{
     margin:25px;
+    width: 50px;
+    height: 50px;
+}
+
+.footer{
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
 }
 
 footer p {
-    margin-top:100px;
     display: block;
     text-align:center;
     font-family:'Raleway';

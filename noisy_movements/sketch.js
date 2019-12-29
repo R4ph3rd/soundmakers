@@ -13,13 +13,10 @@
   let mouse;
 
 function setup () {
-    let canvas =  createCanvas(window.innerWidth, window.innerHeight);
-    let p5canvas = document.getElementById('my-canvas')
+    let canvas = createCanvas(windowWidth, windowHeight, WEBGL);
 
     primary =  color(211, 30, 74, 5);
     secondary =  color(245, 222, 177, 5);
-
-    canvas.parent(p5canvas)
      background(20);
 
      strokeWeight(.5);
@@ -40,7 +37,7 @@ function setup () {
   }
 
 function windowResized() {
-     resizeCanvas(window.innerWidth, window.innerHeight);
+     resizeCanvas(windowWidth, windowHeight, WEBGL);
   }
 
 function draw() {
@@ -52,18 +49,32 @@ function draw() {
       particles[i].display();
     }
 
-    if ( accelerationX){
-      console.log('accel',  accelerationX)
-      mouse.x =  map( rotationX, - 180, 180, 0,  width);
-      mouse.y =  map( rotationY, - 180, 180, 0,  height);
+   // if ( accelerationX){
+      console.log('accel',  accelerationX, rotationX)
+      mouse.x =  map( accelerationX, 0, 20, 0,  width);
+      mouse.y =  map( accelerationY, 0, 20, 0,  height);
+      
+      push()
+      fill(255);
+      ellipse(mouse.x, mouse.y, 10, 10);
+      pop();
+      
+      rotx = map(rotationX, -180, 180, 0, width);
+      roty = map(rotationY, -180, 180, 0, height);
+      
+      push()
+      fill(0, 0, 255);
+      ellipse(rotx, roty, 10, 10);
+      pop();
+      
 
       let yoff = -  random(.005, .5)
       target.add(.3 * (mouse.x - target.x),  noise(yoff));
       
-    } else {
+   // } else {
       mouse.x =  mouseX
       mouse.y =  mouseY
-    }
+   // }
   }
 
  function mouseMoved() {

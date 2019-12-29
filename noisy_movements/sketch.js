@@ -50,32 +50,14 @@ function draw() {
       particles[i].display();
     }
 
-   // if ( accelerationX){
-      console.log('accel',  accelerationX, rotationX)
-      mouse.x =  map( accelerationX, 0, 20, 0,  width);
-      mouse.y =  map( accelerationY, 0, 20, 0,  height);
-      
-      push()
-      fill(255);
-      ellipse(mouse.x, mouse.y, 10, 10);
-      pop();
-      
-      rotx = map(rotationX, -180, 180, 0, width);
-      roty = map(rotationY, -180, 180, 0, height);
-      
-      push()
-      fill(0, 0, 255);
-      ellipse(rotx, roty, 10, 10);
-      pop();
-      
+   if ( accelerationX){
 
-      let yoff = -  random(.005, .5)
-      target.add(.3 * (mouse.x - target.x),  noise(yoff));
+      target.add(accelerationY * 30, accelerationX * 30);
       
-   // } else {
+    } else {
       mouse.x =  mouseX
       mouse.y =  mouseY
-   // }
+    }
   }
 
  function mouseMoved() {

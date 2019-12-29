@@ -49,7 +49,8 @@ function draw() {
       particles[i].update();
       particles[i].display();
     }
-
+  fill(0,255,0)
+    text(rotationX, 10, height/2)
    if ( accelerationX){
 
       target.add(accelerationY * 30, accelerationX * 30);

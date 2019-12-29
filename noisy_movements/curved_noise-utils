@@ -1,0 +1,93 @@
+// Resources:
+// Kniss and Hart - Volume effects: modeling smoke, fire, and clouds - presentation: https://slideplayer.com/slide/5058681/
+// Bridson - Curl-Noise for Procedural Fluid Flow - paper: https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph2007-curlnoise.pdf presentation: https://www.youtube.com/watch?v=K7ObYXr1egg
+
+var detail = 0.02; // How small the details in the noise should be (making it too small will cause stability issues due to potentially dropping below the continuity threshold for the curl calculation)
+var pot_scale = 25; // Scale the potential and with it the max. speed of the particles
+var dx = 1e-4; // Half the step size for the finite difference derivative approx.
+var view_scale = 5; // Scale the whole thing
+
+var nx = 100; // x resolution of the velocity field
+var ny = 100; // y resolution of the velocity field
+var vel = []; // velocity field array
+var particles = []; // particle array
+var num_particles = 500; // number of particles
+
+function setup() {
+	createCanvas(nx * view_scale, ny * view_scale);
+	background(0);
+	loadPixels();
+	
+	// Init the velocity field
+	for (var i=0; i<nx*ny; ++i) {
+		vel[i] = {"x": 0, "y": 0};
+	}
+	// Generate the particles
+	seed_particles(particles, num_particles);
+}
+
+// Randomly distribute particles in a disk shape
+//==================================================================================================
+function seed_particles(parts, num) {
+	var center_x = nx / 2;
+	var center_y = ny / 2;
+	var radius = min(nx / 2, ny / 2);
+	for (var p=0; p<num; ++p) {
+		var rangle = random() * TWO_PI;
+		var rdist = random() * radius;
+		parts[p] = {"x": center_x + cos(rangle) * rdist, "y": center_y + sin(rangle) * rdist, "len": 0};
+		parts[p].px = parts[p].x;
+		parts[p].py = parts[p].y;
+	}
+}
+
+// Calculate the potential at a point in 2D space and time (in this case just some 2D perlin noise)
+//==================================================================================================
+// It's scaled relative to the distance from the center to keep particles from flying out
+//--------------------------------------------------------------------------------------------------
+function get_potential(x, y, res_x, res_y, time) {
+	var distmult = pow(1 / (min(res_x, res_y)/2), 2);
+	var dist_center = max(1 - (pow(x - res_x/2, 2) + pow(y - res_y/2, 2)) * distmult, 0);
+	return (noise(x*detail, y*detail, time) * 2 - 1) * pot_scale * dist_center;
+}
+
+// Calculate the velocity from the curl of the potential
+//==================================================================================================
+// Basically it gives a vector perpendicular to the gradient.
+//This makes the particles flow alongside each other indefinitely (aka divergence free) and not all ending up lumped together (which is what happens when you use noise as the velocity directly)
+// It's really just a combination of a 2D cross product (-y,x) (perpendicular) and a finite difference ((x-dx) - (x+dx)) approx. of the derivative (gradient)
+//--------------------------------------------------------------------------------------------------
+function vel_from_pot(vel_arr, res_x, res_y) {
+	var time = frameCount * 0.005;
+	for (var y=1; y<res_y-1; ++y) {
+		for (var x=1; x<res_x-1; ++x) {
+			var veli = x+y*res_x;
+			vel_arr[IX(x,y)] = {"x": -(get_potential(x,y+dx, res_x, res_y, time) - get_potential(x,y-dx, res_x, res_y, time)) / (2*dx), 
+													"y":  (get_potential(x+dx,y, res_x, res_y, time) - get_potential(x-dx,y, res_x, res_y, time)) / (2*dx)};
+		}
+	}
+}
+
+// Update the velocity field, advect the particles through it and draw them
+//==================================================================================================
+function draw() {
+	// Update  velocities
+	vel_from_pot(vel, nx, ny);
+	// Fade effect for the trails
+	fill(0, 0, 0, 10);
+	noStroke();
+	rect(0,0,width,height);
+	// Loop through the particles
+	for (var p=0; p<num_particles; ++p) {
+		// Advect the particle through the velocity field
+		advect_particle(particles[p], vel, nx, ny);
+		// Calculate a nice stroke color and weight based on the velocity of the particle
+		stroke(255 - min(int(abs(particles[p].x-particles[p].px) * 100), 255), 255 - min(int(abs(particles[p].y-particles[p].py) * 100), 255), min(int(particles[p].len * 500), 255));
+		strokeWeight(particles[p].len * 3);
+		// Draw a line between the previous position and the new position
+		line(particles[p].px * view_scale, particles[p].py * view_scale, particles[p].x * view_scale, particles[p].y * view_scale);
+		// Set the previous position to the new position
+		particles[p].px = particles[p].x;
+		particles[p].py = particles[p].y;
+	}
+}

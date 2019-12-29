@@ -13,7 +13,8 @@
   let mouse;
 
 function setup () {
-    let canvas = createCanvas(windowWidth, windowHeight, WEBGL);
+    let canvas =  createCanvas(window.innerWidth, window.innerHeight, WEBGL);
+    let p5canvas = document.getElementById('my-canvas')
 
     primary =  color(211, 30, 74, 5);
     secondary =  color(245, 222, 177, 5);
